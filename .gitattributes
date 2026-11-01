@@ -1,0 +1,127 @@
+# =============================================================================
+#  Neural Node & Code - .gitattributes
+#  Normalizes line endings and protects binary files across operating systems.
+#  All text files are stored in the repository with LF line endings.
+# =============================================================================
+
+
+# -----------------------------------------------------------------------------
+#  Default: auto-detect text files and normalize them to LF
+# -----------------------------------------------------------------------------
+* text=auto eol=lf
+
+
+# -----------------------------------------------------------------------------
+#  Source code
+# -----------------------------------------------------------------------------
+*.ts      text eol=lf
+*.tsx     text eol=lf
+*.js      text eol=lf
+*.mjs     text eol=lf
+*.cjs     text eol=lf
+*.json    text eol=lf
+*.html    text eol=lf diff=html
+*.css     text eol=lf diff=css
+*.glsl    text eol=lf
+*.vert    text eol=lf
+*.frag    text eol=lf
+*.wgsl    text eol=lf
+
+
+# -----------------------------------------------------------------------------
+#  Documentation and configuration
+# -----------------------------------------------------------------------------
+*.md            text eol=lf diff=markdown
+*.txt           text eol=lf
+*.yml           text eol=lf
+*.yaml          text eol=lf
+*.toml          text eol=lf
+*.xml           text eol=lf
+*.svg           text eol=lf
+.editorconfig   text eol=lf
+.gitattributes  text eol=lf
+.gitignore      text eol=lf
+.prettierrc     text eol=lf
+LICENSE         text eol=lf
+
+
+# -----------------------------------------------------------------------------
+#  Scripts
+#  Shell scripts must stay LF or they will fail in Bash.
+#  Windows batch scripts must stay CRLF or they will fail in cmd.exe.
+# -----------------------------------------------------------------------------
+*.sh    text eol=lf
+*.bash  text eol=lf
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+*.ps1   text eol=crlf
+
+
+# -----------------------------------------------------------------------------
+#  Fonts (bundled title and pixel fonts)
+# -----------------------------------------------------------------------------
+*.woff   binary
+*.woff2  binary
+*.ttf    binary
+*.otf    binary
+*.eot    binary
+
+
+# -----------------------------------------------------------------------------
+#  Images
+# -----------------------------------------------------------------------------
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.webp  binary
+*.avif  binary
+*.ico   binary
+*.bmp   binary
+
+
+# -----------------------------------------------------------------------------
+#  3D assets, audio, and video (in case any are ever added)
+# -----------------------------------------------------------------------------
+*.glb   binary
+*.gltf  text eol=lf
+*.babylon  text eol=lf
+*.env   binary
+*.dds   binary
+*.ktx   binary
+*.ktx2  binary
+*.hdr   binary
+*.mp3   binary
+*.wav   binary
+*.ogg   binary
+*.m4a   binary
+*.mp4   binary
+*.webm  binary
+
+
+# -----------------------------------------------------------------------------
+#  Archives and documents
+# -----------------------------------------------------------------------------
+*.zip   binary
+*.gz    binary
+*.tgz   binary
+*.7z    binary
+*.pdf   binary
+
+
+# -----------------------------------------------------------------------------
+#  Lock file
+#  Marked as generated so GitHub collapses it in pull requests. Diffs stay
+#  visible locally so dependency changes can still be reviewed.
+# -----------------------------------------------------------------------------
+package-lock.json  text eol=lf linguist-generated=true
+
+
+# -----------------------------------------------------------------------------
+#  Exclude development-only files from source archives (git archive)
+# -----------------------------------------------------------------------------
+.vscode/         export-ignore
+tests/           export-ignore
+.editorconfig    export-ignore
+.prettierrc      export-ignore
+eslint.config.js export-ignore

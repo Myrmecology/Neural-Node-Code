@@ -1,0 +1,8 @@
+# =============================================================================
+#  Neural Node & Code - .prettierignore
+#  Prettier already skips everything in .gitignore. These are extra files
+#  Prettier must never reformat.
+# =============================================================================
+
+# Generated and formatted by npm itself.
+package-lock.json

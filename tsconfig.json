@@ -1,0 +1,49 @@
+{
+  // ===========================================================================
+  //  Neural Node & Code - TypeScript configuration
+  //  Tuned for TypeScript 6.0, Vite 8 (bundler), and Vitest 5.
+  //  TypeScript only type-checks; Vite handles all compiling and bundling.
+  // ===========================================================================
+  "compilerOptions": {
+    // ---- Language and environment ------------------------------------------
+    "target": "ES2023",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "useDefineForClassFields": true,
+
+    // ---- Modules -------------------------------------------------------------
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "erasableSyntaxOnly": true,
+
+    // ---- Type definitions ----------------------------------------------------
+    // TypeScript 6 no longer loads type packages automatically.
+    // vite/client provides types for import.meta.env and CSS/asset imports.
+    "types": ["vite/client"],
+
+    // ---- Output ----------------------------------------------------------------
+    // Vite does the building, so TypeScript never writes files.
+    "noEmit": true,
+
+    // ---- Strict type safety ----------------------------------------------------
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "forceConsistentCasingInFileNames": true,
+
+    // ---- Performance -----------------------------------------------------------
+    "skipLibCheck": true
+  },
+
+  "include": ["src", "tests", "vite.config.ts"],
+  "exclude": ["node_modules", "dist", "coverage"]
+}

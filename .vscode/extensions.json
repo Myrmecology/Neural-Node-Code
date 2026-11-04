@@ -1,0 +1,29 @@
+{
+  // ===========================================================================
+  //  Neural Node & Code - recommended VS Code extensions
+  //  View them anytime: Extensions panel, then type @recommended
+  // ===========================================================================
+  "recommendations": [
+    // Formats code on save using the project's .prettierrc.
+    "esbenp.prettier-vscode",
+
+    // Shows ESLint errors inline and auto-fixes on save.
+    "dbaeumer.vscode-eslint",
+
+    // Applies .editorconfig rules (LF, UTF-8, 2-space indent).
+    "editorconfig.editorconfig",
+
+    // Runs and debugs Vitest tests from the sidebar.
+    "vitest.explorer",
+
+    // Displays errors and warnings directly on the line where they occur.
+    "usernamehw.errorlens"
+  ],
+
+  "unwantedRecommendations": [
+    // These replace VS Code's TypeScript with nightly or TypeScript 7 preview
+    // builds, which would conflict with the project's pinned TypeScript 6.0.3.
+    "ms-vscode.vscode-typescript-next",
+    "typescriptteam.native-preview"
+  ]
+}

@@ -1,0 +1,265 @@
+/* =============================================================================
+   Neural Node & Code - main stylesheet
+   Full-screen layout, retro title screen, HUD, and overlay messages.
+   The 3D world is drawn by Babylon.js on the canvas; everything here styles
+   the HTML layer that sits on top of it.
+   ========================================================================== */
+
+/* ---- Fonts (bundled locally by Vite, never loaded from outside servers) ---- */
+@import '@fontsource/pirata-one/400.css';
+@import '@fontsource/press-start-2p/400.css';
+
+/* ---- Design tokens --------------------------------------------------------- */
+:root {
+  --nnc-black: #000000;
+  --nnc-white: #f2f2f2;
+  --nnc-gray: #8a8a8a;
+  --nnc-green: #6bff4a;
+  --nnc-green-deep: #2fbf1f;
+  --nnc-green-glow: rgb(107 255 74 / 55%);
+
+  --font-title: 'Pirata One', 'Times New Roman', serif;
+  --font-pixel: 'Press Start 2P', 'Courier New', monospace;
+
+  --ui-gutter: clamp(12px, 2.5vw, 32px);
+
+  color-scheme: dark;
+}
+
+/* ---- Reset ------------------------------------------------------------------ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--nnc-black);
+  color: var(--nnc-white);
+  font-family: var(--font-pixel);
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+p,
+h1,
+h2 {
+  margin: 0;
+}
+
+/* ---- Layout ------------------------------------------------------------------ */
+#app {
+  position: fixed;
+  inset: 0;
+}
+
+#game-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  outline: none;
+  touch-action: none;
+}
+
+/* The UI layer never blocks the canvas unless a screen asks for input. */
+#ui-root {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.is-hidden {
+  display: none !important;
+}
+
+/* ---- Pixel text ---------------------------------------------------------------
+   Turn off font smoothing so the 8-bit font stays crisp, like a real console. */
+.pixel-text,
+.credits,
+.prompt,
+.hud,
+.overlay-message {
+  font-family: var(--font-pixel);
+  text-transform: uppercase;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+  font-smooth: never;
+}
+
+/* ---- Full-screen screens (title, pause, game over) ------------------------- */
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(20px, 4vh, 40px);
+  padding: var(--ui-gutter);
+  text-align: center;
+  pointer-events: auto;
+}
+
+.screen--title {
+  background: var(--nnc-black);
+}
+
+.screen--dim {
+  background: rgb(0 0 0 / 72%);
+}
+
+/* Faint CRT scanlines over the title screen. */
+.screen--title::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgb(255 255 255 / 3%) 0,
+    rgb(255 255 255 / 3%) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+/* ---- Title logo ------------------------------------------------------------- */
+.title-logo {
+  font-family: var(--font-title);
+  font-weight: 400;
+  font-size: clamp(3rem, 11vw, 8rem);
+  line-height: 0.95;
+  color: var(--nnc-green);
+  text-shadow:
+    0 0 6px var(--nnc-green-glow),
+    0 0 18px var(--nnc-green-glow),
+    0 0 42px rgb(47 191 31 / 35%);
+  animation: title-flicker 6s infinite;
+}
+
+.title-logo__amp {
+  display: inline-block;
+  color: var(--nnc-green-deep);
+  transform: translateY(0.04em);
+}
+
+/* ---- Credits block ---------------------------------------------------------- */
+.credits {
+  display: flex;
+  flex-direction: column;
+  gap: 1.6em;
+  font-size: clamp(9px, 1.5vw, 15px);
+  line-height: 1.9;
+  letter-spacing: 0.06em;
+  color: var(--nnc-white);
+}
+
+/* ---- Blinking "press enter" prompt ------------------------------------------ */
+.prompt {
+  font-size: clamp(10px, 1.7vw, 17px);
+  color: var(--nnc-green);
+  animation: prompt-blink 1.1s steps(1, end) infinite;
+}
+
+/* ---- In-game HUD ------------------------------------------------------------ */
+.hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: var(--ui-gutter);
+  font-size: clamp(9px, 1.3vw, 14px);
+  line-height: 1.8;
+  pointer-events: none;
+}
+
+.hud__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+}
+
+.hud__item--center {
+  align-items: center;
+}
+
+.hud__item--right {
+  align-items: flex-end;
+}
+
+.hud__label {
+  color: var(--nnc-gray);
+}
+
+.hud__value {
+  color: var(--nnc-white);
+}
+
+/* ---- Center overlay messages (READY, PAUSED, GAME OVER) --------------------- */
+.overlay-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(14px, 2.6vw, 28px);
+  color: var(--nnc-green);
+  text-shadow: 0 0 10px var(--nnc-green-glow);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ---- No JavaScript fallback ------------------------------------------------- */
+.noscript {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  color: var(--nnc-green);
+}
+
+/* ---- Animations ------------------------------------------------------------- */
+@keyframes title-flicker {
+  0%,
+  92%,
+  100% {
+    opacity: 1;
+  }
+  93% {
+    opacity: 0.82;
+  }
+  94% {
+    opacity: 1;
+  }
+  96% {
+    opacity: 0.9;
+  }
+}
+
+@keyframes prompt-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Respect the operating system's "reduce motion" accessibility setting. */
+@media (prefers-reduced-motion: reduce) {
+  .title-logo,
+  .prompt {
+    animation: none;
+  }
+}

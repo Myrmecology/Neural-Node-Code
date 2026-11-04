@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Neural Node &amp; Code">
+  <title>Neural Node &amp; Code</title>
+
+  <defs>
+    <!-- Soft outer glow for the wireframe lines -->
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="1.6" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <!-- Bright core fading outward -->
+    <radialGradient id="core" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#e8ffd9" />
+      <stop offset="45%" stop-color="#6bff4a" />
+      <stop offset="100%" stop-color="#6bff4a" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <!-- Black background tile -->
+  <rect width="64" height="64" rx="12" fill="#000000" />
+
+  <!-- Wireframe node (icosahedron silhouette) -->
+  <g
+    fill="none"
+    stroke="#6bff4a"
+    stroke-width="2"
+    stroke-linejoin="round"
+    stroke-linecap="round"
+    filter="url(#glow)"
+  >
+    <!-- Outer hexagon -->
+    <polygon points="32,8 52.78,20 52.78,44 32,56 11.22,44 11.22,20" />
+
+    <!-- Inner triangle -->
+    <polygon points="32,20 42.39,38 21.61,38" />
+
+    <!-- Connecting edges -->
+    <path
+      d="M32,20 L32,8 M32,20 L52.78,20 M32,20 L11.22,20
+         M42.39,38 L52.78,20 M42.39,38 L52.78,44 M42.39,38 L32,56
+         M21.61,38 L11.22,20 M21.61,38 L11.22,44 M21.61,38 L32,56"
+    />
+  </g>
+
+  <!-- Glowing center pulse -->
+  <circle cx="32" cy="32" r="7" fill="url(#core)" />
+</svg>

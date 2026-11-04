@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!--
+      Content Security Policy
+      - Scripts may only come from this game, never from outside sources or inline code.
+      - Styles allow inline rules because Vite injects CSS that way during development.
+      - Images and fonts allow data: and blob: URLs, which Babylon.js uses for
+        generated textures.
+      - Connections allow the local dev server's live-reload socket.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="
+        default-src 'self';
+        script-src 'self';
+        style-src 'self' 'unsafe-inline';
+        img-src 'self' data: blob:;
+        font-src 'self' data:;
+        connect-src 'self' ws://localhost:*;
+        worker-src 'self' blob:;
+        media-src 'self' blob:;
+        object-src 'none';
+        base-uri 'self';
+        form-action 'none';
+      "
+    />
+    <meta name="referrer" content="no-referrer" />
+
+    <meta
+      name="description"
+      content="Neural Node &amp; Code: a 3D maze chase game. Guide the scientist through the network, collect the nodes, and outrun the rogue monitors."
+    />
+    <meta name="theme-color" content="#000000" />
+    <meta name="color-scheme" content="dark" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <title>Neural Node &amp; Code</title>
+  </head>
+
+  <body>
+    <div id="app">
+      <!-- Babylon.js renders the 3D maze, scientist, nodes, and monitors here. -->
+      <canvas id="game-canvas" aria-label="Neural Node &amp; Code game view"></canvas>
+
+      <!-- Title screen, HUD, pause, and game over screens are layered on top. -->
+      <div id="ui-root"></div>
+    </div>
+
+    <noscript>
+      <p class="noscript">Neural Node &amp; Code requires JavaScript to run.</p>
+    </noscript>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

@@ -7,7 +7,8 @@
  * - Input buffering: a direction tapped just before a turn is remembered for
  *   TIMING.inputBuffer seconds so the turn still happens.
  * - Touch swipes: a swipe sets a direction that persists until the next one.
- * - One-shot actions (confirm, pause, mute) that are read once per press.
+ * - One-shot actions (confirm, pause, mute, title screen toggles) that are
+ *   read once per press.
  *
  * Keys are matched by physical position (event.code), so WASD works on any
  * keyboard layout. Every listener is removed together by dispose().
@@ -20,6 +21,10 @@ export const InputAction = {
   Confirm: 'confirm',
   Pause: 'pause',
   Mute: 'mute',
+  /** Title screen: toggle the EXTRA LIVES option. */
+  ToggleLives: 'toggleLives',
+  /** Title screen: toggle the GORE option. */
+  ToggleGore: 'toggleGore',
 } as const;
 
 export type InputAction = (typeof InputAction)[keyof typeof InputAction];
@@ -42,6 +47,8 @@ const ACTION_KEYS: Readonly<Record<string, InputAction>> = {
   Escape: InputAction.Pause,
   KeyP: InputAction.Pause,
   KeyM: InputAction.Mute,
+  KeyL: InputAction.ToggleLives,
+  KeyG: InputAction.ToggleGore,
 };
 
 /** Minimum finger travel, in pixels, for a touch to count as a swipe. */

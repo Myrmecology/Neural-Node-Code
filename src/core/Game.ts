@@ -11,6 +11,9 @@
  *
  * Simulation runs in fixed steps (GameLoop.update); visuals are refreshed once
  * per display frame (GameLoop.render) with interpolation for smooth motion.
+ *
+ * Title screen options: EXTRA LIVES (L) adds SCORING.bonusLives at the start
+ * of a game; GORE (G) makes the scientist explode when caught.
  */
 import { Matrix, Vector3 } from '@babylonjs/core';
 import type { Monitor } from '../entities/Monitor';
@@ -47,10 +50,12 @@ import type { HudSnapshot } from '../types';
 import { Hud } from '../ui/Hud';
 import { Screens } from '../ui/Screens';
 import { TitleScreen } from '../ui/TitleScreen';
+import type { TitleOptions } from '../ui/TitleScreen';
 import { gridToWorld } from '../utils/Grid';
 import type { GridPoint } from '../utils/Grid';
 import { clamp01 } from '../utils/MathUtils';
-import { SCORING, TILE_SIZE, TIMING } from './Config';
+// NEW: DEFAULT_OPTIONS for the title screen options.
+import { DEFAULT_OPTIONS, SCORING, TILE_SIZE, TIMING } from './Config';
 import { EventBus } from './EventBus';
 import { GameLoop } from './GameLoop';
 import { StateMachine } from './StateMachine';
@@ -121,6 +126,10 @@ export class Game {
   private nodeChainTimer = 0;
   private footstepDistance = 0;
 
+  // NEW: title screen options.
+  private extraLives: boolean = DEFAULT_OPTIONS.extraLives;
+  private gore: boolean = DEFAULT_OPTIONS.gore;
+
   constructor(canvas: HTMLCanvasElement, uiRoot: HTMLElement) {
     this.canvas = canvas;
     this.context = createSceneContext(canvas);
@@ -148,7 +157,15 @@ export class Game {
     }
     this.virus = virus;
 
-    this.titleScreen = new TitleScreen(uiRoot);
+    // NEW: option lines on the title screen can be clicked or tapped.
+    this.titleScreen = new TitleScreen(uiRoot, {
+      onToggleLives: () => {
+        this.toggleExtraLives();
+      },
+      onToggleGore: () => {
+        this.toggleGore();
+      },
+    });
     this.hud = new Hud(uiRoot, this.events);
     this.screens = new Screens(uiRoot);
     this.cutscenes = {
@@ -226,13 +243,22 @@ export class Game {
       enter: () => {
         this.hud.hide();
         this.screens.hideAll();
-        this.titleScreen.show(this.score.highScore);
+        // NEW: show the current option values.
+        this.titleScreen.show(this.score.highScore, this.titleOptions());
       },
       update: () => {
+        // NEW: L and G toggle the options.
+        if (this.input.wasPressed(InputAction.ToggleLives)) {
+          this.toggleExtraLives();
+        }
+        if (this.input.wasPressed(InputAction.ToggleGore)) {
+          this.toggleGore();
+        }
         if (this.input.wasPressed(InputAction.Confirm)) {
           this.sfx.menuConfirm();
           this.titleScreen.hide();
-          this.score.reset();
+          // NEW: start with bonus lives when EXTRA LIVES is on.
+          this.score.reset(this.extraLives ? SCORING.bonusLives : 0);
           this.loadLevel(this.levels.start());
           this.introAssembles = true;
           m.transition(GameState.LevelIntro);
@@ -315,13 +341,24 @@ export class Game {
       enter: () => {
         this.setMonitorsVisible(false);
         const position = this.scientistWorld();
-        this.particles.scientistCaught(position.x, position.z);
-        this.shake.add(0.7);
+        // NEW: GORE on makes him explode; off keeps the original collapse.
+        if (this.gore) {
+          this.scientistModel.setVisible(false);
+          this.particles.bloodExplosion(position.x, position.z);
+          this.particles.showSplat(position.x, position.z);
+          this.sfx.splat();
+          this.shake.add(1.0);
+        } else {
+          this.particles.scientistCaught(position.x, position.z);
+          this.shake.add(0.7);
+        }
         this.power.reset();
       },
       update: () => {
         const t = m.timeInState;
-        this.scientistModel.poseCaught(t / TIMING.dying);
+        if (!this.gore) {
+          this.scientistModel.poseCaught(t / TIMING.dying);
+        }
         if (t >= TIMING.dying) {
           const livesLeft = this.score.loseLife();
           if (livesLeft > 0) {
@@ -614,6 +651,8 @@ export class Game {
     this.sfx.stopAll();
     this.input.clear();
     this.shake.reset();
+    // NEW: clear the floor splat from the previous life.
+    this.particles.clearSplat();
     this.freezeTimer = 0;
     this.nodeChain = 0;
     this.nodeChainTimer = 0;
@@ -639,6 +678,29 @@ export class Game {
       level: this.level.displayNumber,
       levelName: this.level.definition.name,
     };
+  }
+
+  // NEW: title screen option helpers.
+  private titleOptions(): TitleOptions {
+    return { extraLives: this.extraLives, gore: this.gore };
+  }
+
+  private toggleExtraLives(): void {
+    if (!this.machine.is(GameState.Title)) {
+      return;
+    }
+    this.extraLives = !this.extraLives;
+    this.titleScreen.setOptions(this.titleOptions());
+    this.sfx.menuBlip();
+  }
+
+  private toggleGore(): void {
+    if (!this.machine.is(GameState.Title)) {
+      return;
+    }
+    this.gore = !this.gore;
+    this.titleScreen.setOptions(this.titleOptions());
+    this.sfx.menuBlip();
   }
 
   private scientistWorld(): { x: number; z: number } {

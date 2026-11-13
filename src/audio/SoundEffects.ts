@@ -3,8 +3,8 @@
  *
  * Every game sound, composed from AudioEngine tones and noise. Most sounds
  * play automatically in response to game events, so gameplay code never
- * touches audio directly. A few (footsteps, menu blips, cutscene theme) are
- * called explicitly.
+ * touches audio directly. A few (footsteps, menu blips, cutscene theme, the
+ * gore splat) are called explicitly.
  */
 import type { EventBus } from '../core/EventBus';
 import type { AudioEngine, LoopHandle } from './AudioEngine';
@@ -124,6 +124,39 @@ export class SoundEffects {
       duration: 0.12,
       type: 'triangle',
       volume: 0.18,
+    });
+  }
+
+  /** GORE on: a wet, squelchy burst with a deep thump, then drips as the pieces land. */
+  splat(): void {
+    // The squelch: noise swept from bright to muffled.
+    this.audio.noise({
+      duration: 0.38,
+      volume: 0.42,
+      filterType: 'lowpass',
+      filterFrequency: 1800,
+      filterEndFrequency: 140,
+      attack: 0.004,
+    });
+    // The thump underneath.
+    this.audio.tone({
+      frequency: 150,
+      endFrequency: 38,
+      duration: 0.3,
+      type: 'sine',
+      volume: 0.38,
+    });
+    // Small splats as the pieces hit the floor.
+    const drips = [0.42, 0.58, 0.71, 0.93];
+    drips.forEach((delay, index) => {
+      this.audio.noise({
+        duration: 0.07,
+        volume: 0.12 - index * 0.02,
+        filterType: 'lowpass',
+        filterFrequency: 700 - index * 90,
+        filterEndFrequency: 180,
+        delay,
+      });
     });
   }
 

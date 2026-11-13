@@ -3,6 +3,8 @@
  *
  * Tracks score, high score, and lives, awards an extra life at
  * SCORING.extraLifeAt, and announces every change through the event bus.
+ * A game may start with bonus lives (the title screen EXTRA LIVES option);
+ * the life cap rises by the same amount so earned lives still count.
  *
  * The high score is stored in the browser. Stored data is treated as
  * untrusted: it is strictly validated on load, and any storage failure
@@ -41,6 +43,7 @@ export class ScoreSystem {
   private currentScore = 0;
   private best: number;
   private currentLives: number = SCORING.startingLives;
+  private lifeCap: number = SCORING.maxLives;
   private extraLifeAwarded = false;
   private beatBestThisGame = false;
 
@@ -66,10 +69,15 @@ export class ScoreSystem {
     return this.beatBestThisGame;
   }
 
-  /** Starts a fresh game: score 0, full lives. */
-  reset(): void {
+  /**
+   * Starts a fresh game: score 0, full lives.
+   * @param bonusLives extra lives to start with (0 for a normal game)
+   */
+  reset(bonusLives = 0): void {
+    const bonus = Number.isInteger(bonusLives) && bonusLives > 0 ? bonusLives : 0;
     this.currentScore = 0;
-    this.currentLives = SCORING.startingLives;
+    this.currentLives = SCORING.startingLives + bonus;
+    this.lifeCap = SCORING.maxLives + bonus;
     this.extraLifeAwarded = false;
     this.beatBestThisGame = false;
     this.announceScore();
@@ -90,7 +98,7 @@ export class ScoreSystem {
 
     if (!this.extraLifeAwarded && this.currentScore >= SCORING.extraLifeAt) {
       this.extraLifeAwarded = true;
-      if (this.currentLives < SCORING.maxLives) {
+      if (this.currentLives < this.lifeCap) {
         this.currentLives += 1;
         this.events.emit('extraLife', { lives: this.currentLives });
         this.events.emit('livesChanged', { lives: this.currentLives });

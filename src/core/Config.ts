@@ -1,8 +1,9 @@
 /**
  * Neural Node & Code - Game configuration
  *
- * All tuning values in one place: timing, scoring, lives, storage keys, and
- * the per-level difficulty curve. Speeds are in tiles per second.
+ * All tuning values in one place: timing, scoring, lives, title screen
+ * options, storage keys, and the per-level difficulty curve.
+ * Speeds are in tiles per second.
  */
 import { MonitorMode } from '../types';
 import type { DifficultySettings, ModePhase } from '../types';
@@ -42,6 +43,16 @@ export const SCORING = {
   extraLifeAt: 10_000,
   startingLives: 3,
   maxLives: 5,
+  /** Lives added at the start of a game when the EXTRA LIVES option is on. */
+  bonusLives: 20,
+} as const;
+
+/** Title screen options and the values they start with each time the game opens. */
+export const DEFAULT_OPTIONS = {
+  /** Start with SCORING.bonusLives additional lives. */
+  extraLives: false,
+  /** The scientist explodes when caught (otherwise he spins and collapses). */
+  gore: true,
 } as const;
 
 /** Browser storage keys. Versioned so a future format change cannot misread old data. */

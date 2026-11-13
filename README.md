@@ -1,4 +1,5 @@
 # Neural Node & Code
+# FOR A VIDEO DEMO OF THIS PROJECT PLEASE VISIT: https://www.youtube.com/watch?v=R3JmjBxTS5g
 
 A 3D maze chase game built with TypeScript and Babylon.js. Guide the scientist through eight glowing neural mazes, collect every data node, and outrun four rogue computer monitors that each hunt you in their own way.
 

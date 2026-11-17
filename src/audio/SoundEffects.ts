@@ -4,7 +4,7 @@
  * Every game sound, composed from AudioEngine tones and noise. Most sounds
  * play automatically in response to game events, so gameplay code never
  * touches audio directly. A few (footsteps, menu blips, cutscene theme, the
- * gore splat) are called explicitly.
+ * gore splat, the monitor explosion) are called explicitly.
  */
 import type { EventBus } from '../core/EventBus';
 import type { AudioEngine, LoopHandle } from './AudioEngine';
@@ -155,6 +155,46 @@ export class SoundEffects {
         filterType: 'lowpass',
         filterFrequency: 700 - index * 90,
         filterEndFrequency: 180,
+        delay,
+      });
+    });
+  }
+
+  /** INVINCIBLE on: a monitor blowing up with a boom, a zap, and crackling debris. */
+  explosion(): void {
+    // The roaring blast.
+    this.audio.noise({
+      duration: 0.6,
+      volume: 0.4,
+      filterType: 'lowpass',
+      filterFrequency: 3200,
+      filterEndFrequency: 150,
+      attack: 0.003,
+    });
+    // The deep boom underneath.
+    this.audio.tone({
+      frequency: 110,
+      endFrequency: 30,
+      duration: 0.5,
+      type: 'sine',
+      volume: 0.42,
+    });
+    // The monitor shorting out.
+    this.audio.tone({
+      frequency: 1400,
+      endFrequency: 180,
+      duration: 0.18,
+      type: 'square',
+      volume: 0.1,
+    });
+    // Crackling debris.
+    const crackles = [0.2, 0.31, 0.45];
+    crackles.forEach((delay, index) => {
+      this.audio.noise({
+        duration: 0.05,
+        volume: 0.1 - index * 0.02,
+        filterType: 'highpass',
+        filterFrequency: 3000,
         delay,
       });
     });

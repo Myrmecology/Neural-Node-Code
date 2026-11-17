@@ -2,12 +2,12 @@
  * Neural Node & Code - Title screen
  *
  * Black screen, glowing gothic-green title, a block of white pixel-font
- * credits, and two options (EXTRA LIVES and GORE), in the style of a classic
- * console cartridge title screen. Styles live in src/styles/main.css.
+ * credits, and three options (EXTRA LIVES, GORE, INVINCIBLE), in the style of
+ * a classic console cartridge title screen. Styles live in src/styles/main.css.
  *
- * Options toggle with the L and G keys (handled by the game) or by clicking
- * or tapping their lines. Option taps are stopped here so they never reach
- * the window-level "tap to boot" input.
+ * Options toggle with the L, G, and I keys (handled by the game) or by
+ * clicking or tapping their lines. Option taps are stopped here so they never
+ * reach the window-level "tap to boot" input.
  *
  * All text is set with textContent (never innerHTML), so nothing shown on
  * screen can be interpreted as markup or code.
@@ -18,12 +18,15 @@ import { SCORING } from '../core/Config';
 export interface TitleOptions {
   readonly extraLives: boolean;
   readonly gore: boolean;
+  /** Optional so older callers that pass only two options still work (treated as off). */
+  readonly invincible?: boolean;
 }
 
 /** Called when an option line is clicked or tapped. */
 export interface TitleScreenHandlers {
   readonly onToggleLives?: () => void;
   readonly onToggleGore?: () => void;
+  readonly onToggleInvincible?: () => void;
 }
 
 const OPTION_ON_COLOR = '#6bff4a';
@@ -82,11 +85,19 @@ function optionButton(onActivate: () => void): HTMLButtonElement {
   return button;
 }
 
+/** Sets an option line's text, color, and pressed state. */
+function renderOption(button: HTMLButtonElement, on: boolean, text: string): void {
+  button.textContent = text;
+  button.style.color = on ? OPTION_ON_COLOR : OPTION_OFF_COLOR;
+  button.setAttribute('aria-pressed', String(on));
+}
+
 export class TitleScreen {
   private readonly element: HTMLElement;
   private readonly highScoreLine: HTMLParagraphElement;
   private readonly livesOption: HTMLButtonElement;
   private readonly goreOption: HTMLButtonElement;
+  private readonly invincibleOption: HTMLButtonElement;
 
   constructor(root: HTMLElement, handlers: TitleScreenHandlers = {}) {
     this.element = createElement('section', 'screen screen--title is-hidden');
@@ -122,7 +133,8 @@ export class TitleScreen {
     options.style.alignItems = 'center';
     this.livesOption = optionButton(() => handlers.onToggleLives?.());
     this.goreOption = optionButton(() => handlers.onToggleGore?.());
-    options.append(this.livesOption, this.goreOption);
+    this.invincibleOption = optionButton(() => handlers.onToggleInvincible?.());
+    options.append(this.livesOption, this.goreOption, this.invincibleOption);
 
     // ---- Prompt and controls ------------------------------------------------
     const prompt = createElement('p', 'prompt', 'PRESS ENTER OR TAP TO BOOT');
@@ -135,7 +147,7 @@ export class TitleScreen {
     this.element.append(title, credits, options, prompt, controls);
     root.append(this.element);
 
-    this.setOptions({ extraLives: false, gore: true });
+    this.setOptions({ extraLives: false, gore: true, invincible: false });
   }
 
   get isVisible(): boolean {
@@ -153,15 +165,19 @@ export class TitleScreen {
 
   /** Updates the option lines to match the current values. */
   setOptions(options: TitleOptions): void {
-    this.livesOption.textContent = options.extraLives
-      ? `EXTRA LIVES: ON (+${SCORING.bonusLives}) [L]`
-      : 'EXTRA LIVES: OFF [L]';
-    this.livesOption.style.color = options.extraLives ? OPTION_ON_COLOR : OPTION_OFF_COLOR;
-    this.livesOption.setAttribute('aria-pressed', String(options.extraLives));
+    renderOption(
+      this.livesOption,
+      options.extraLives,
+      options.extraLives ? `EXTRA LIVES: ON (+${SCORING.bonusLives}) [L]` : 'EXTRA LIVES: OFF [L]',
+    );
+    renderOption(this.goreOption, options.gore, options.gore ? 'GORE: ON [G]' : 'GORE: OFF [G]');
 
-    this.goreOption.textContent = options.gore ? 'GORE: ON [G]' : 'GORE: OFF [G]';
-    this.goreOption.style.color = options.gore ? OPTION_ON_COLOR : OPTION_OFF_COLOR;
-    this.goreOption.setAttribute('aria-pressed', String(options.gore));
+    const invincible = options.invincible ?? false;
+    renderOption(
+      this.invincibleOption,
+      invincible,
+      invincible ? 'INVINCIBLE: ON [I]' : 'INVINCIBLE: OFF [I]',
+    );
   }
 
   hide(): void {

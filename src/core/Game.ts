@@ -13,7 +13,8 @@
  * per display frame (GameLoop.render) with interpolation for smooth motion.
  *
  * Title screen options: EXTRA LIVES (L) adds SCORING.bonusLives at the start
- * of a game; GORE (G) makes the scientist explode when caught.
+ * of a game; GORE (G) makes the scientist explode when caught; INVINCIBLE (I)
+ * makes him uncatchable, and hunting monitors that touch him explode instead.
  */
 import { Matrix, Vector3 } from '@babylonjs/core';
 import type { Monitor } from '../entities/Monitor';
@@ -54,7 +55,6 @@ import type { TitleOptions } from '../ui/TitleScreen';
 import { gridToWorld } from '../utils/Grid';
 import type { GridPoint } from '../utils/Grid';
 import { clamp01 } from '../utils/MathUtils';
-// NEW: DEFAULT_OPTIONS for the title screen options.
 import { DEFAULT_OPTIONS, SCORING, TILE_SIZE, TIMING } from './Config';
 import { EventBus } from './EventBus';
 import { GameLoop } from './GameLoop';
@@ -126,9 +126,11 @@ export class Game {
   private nodeChainTimer = 0;
   private footstepDistance = 0;
 
-  // NEW: title screen options.
+  // Title screen options.
   private extraLives: boolean = DEFAULT_OPTIONS.extraLives;
   private gore: boolean = DEFAULT_OPTIONS.gore;
+  // NEW: invincibility option.
+  private invincible: boolean = DEFAULT_OPTIONS.invincible;
 
   constructor(canvas: HTMLCanvasElement, uiRoot: HTMLElement) {
     this.canvas = canvas;
@@ -157,13 +159,17 @@ export class Game {
     }
     this.virus = virus;
 
-    // NEW: option lines on the title screen can be clicked or tapped.
+    // Option lines on the title screen can be clicked or tapped.
     this.titleScreen = new TitleScreen(uiRoot, {
       onToggleLives: () => {
         this.toggleExtraLives();
       },
       onToggleGore: () => {
         this.toggleGore();
+      },
+      // NEW: invincibility line.
+      onToggleInvincible: () => {
+        this.toggleInvincible();
       },
     });
     this.hud = new Hud(uiRoot, this.events);
@@ -243,21 +249,23 @@ export class Game {
       enter: () => {
         this.hud.hide();
         this.screens.hideAll();
-        // NEW: show the current option values.
         this.titleScreen.show(this.score.highScore, this.titleOptions());
       },
       update: () => {
-        // NEW: L and G toggle the options.
         if (this.input.wasPressed(InputAction.ToggleLives)) {
           this.toggleExtraLives();
         }
         if (this.input.wasPressed(InputAction.ToggleGore)) {
           this.toggleGore();
         }
+        // NEW: I toggles invincibility.
+        if (this.input.wasPressed(InputAction.ToggleInvincible)) {
+          this.toggleInvincible();
+        }
         if (this.input.wasPressed(InputAction.Confirm)) {
           this.sfx.menuConfirm();
           this.titleScreen.hide();
-          // NEW: start with bonus lives when EXTRA LIVES is on.
+          // Start with bonus lives when EXTRA LIVES is on.
           this.score.reset(this.extraLives ? SCORING.bonusLives : 0);
           this.loadLevel(this.levels.start());
           this.introAssembles = true;
@@ -341,7 +349,7 @@ export class Game {
       enter: () => {
         this.setMonitorsVisible(false);
         const position = this.scientistWorld();
-        // NEW: GORE on makes him explode; off keeps the original collapse.
+        // GORE on makes him explode; off keeps the original collapse.
         if (this.gore) {
           this.scientistModel.setVisible(false);
           this.particles.bloodExplosion(position.x, position.z);
@@ -516,8 +524,13 @@ export class Game {
       this.catchMonitor(monitor);
     }
     if (report.killer !== null) {
-      this.events.emit('scientistCaught', { by: report.killer.id });
-      this.machine.transition(GameState.Dying);
+      // NEW: an invincible scientist makes the monitor explode instead of dying.
+      if (this.invincible) {
+        this.explodeMonitor(report.killer);
+      } else {
+        this.events.emit('scientistCaught', { by: report.killer.id });
+        this.machine.transition(GameState.Dying);
+      }
     }
   }
 
@@ -576,6 +589,18 @@ export class Game {
       point: monitor.ai.currentTile,
       points,
     });
+  }
+
+  /**
+   * NEW: INVINCIBLE on. A hunting monitor touched the scientist and blows up.
+   * No points, no freeze; its eyes race home and it respawns as usual.
+   */
+  private explodeMonitor(monitor: Monitor): void {
+    const position = monitor.ai.worldPosition(1);
+    monitor.ai.caught();
+    this.particles.monitorExplosion(position.x, position.z, MONITOR_COLORS[monitor.id]);
+    this.sfx.explosion();
+    this.shake.add(0.45);
   }
 
   // ===========================================================================
@@ -651,7 +676,7 @@ export class Game {
     this.sfx.stopAll();
     this.input.clear();
     this.shake.reset();
-    // NEW: clear the floor splat from the previous life.
+    // Clear the floor splat from the previous life.
     this.particles.clearSplat();
     this.freezeTimer = 0;
     this.nodeChain = 0;
@@ -680,9 +705,9 @@ export class Game {
     };
   }
 
-  // NEW: title screen option helpers.
+  // Title screen option helpers.
   private titleOptions(): TitleOptions {
-    return { extraLives: this.extraLives, gore: this.gore };
+    return { extraLives: this.extraLives, gore: this.gore, invincible: this.invincible };
   }
 
   private toggleExtraLives(): void {
@@ -699,6 +724,16 @@ export class Game {
       return;
     }
     this.gore = !this.gore;
+    this.titleScreen.setOptions(this.titleOptions());
+    this.sfx.menuBlip();
+  }
+
+  // NEW: toggles invincibility from the title screen.
+  private toggleInvincible(): void {
+    if (!this.machine.is(GameState.Title)) {
+      return;
+    }
+    this.invincible = !this.invincible;
     this.titleScreen.setOptions(this.titleOptions());
     this.sfx.menuBlip();
   }

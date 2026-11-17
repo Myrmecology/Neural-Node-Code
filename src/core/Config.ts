@@ -44,7 +44,7 @@ export const SCORING = {
   startingLives: 3,
   maxLives: 5,
   /** Lives added at the start of a game when the EXTRA LIVES option is on. */
-  bonusLives: 20,
+  bonusLives: 50,
 } as const;
 
 /** Title screen options and the values they start with each time the game opens. */
@@ -53,6 +53,8 @@ export const DEFAULT_OPTIONS = {
   extraLives: false,
   /** The scientist explodes when caught (otherwise he spins and collapses). */
   gore: true,
+  /** The scientist cannot be caught; monitors that touch him explode and respawn. */
+  invincible: false,
 } as const;
 
 /** Browser storage keys. Versioned so a future format change cannot misread old data. */

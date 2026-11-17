@@ -25,6 +25,8 @@ export const InputAction = {
   ToggleLives: 'toggleLives',
   /** Title screen: toggle the GORE option. */
   ToggleGore: 'toggleGore',
+  /** Title screen: toggle the INVINCIBLE option. */
+  ToggleInvincible: 'toggleInvincible',
 } as const;
 
 export type InputAction = (typeof InputAction)[keyof typeof InputAction];
@@ -49,6 +51,7 @@ const ACTION_KEYS: Readonly<Record<string, InputAction>> = {
   KeyM: InputAction.Mute,
   KeyL: InputAction.ToggleLives,
   KeyG: InputAction.ToggleGore,
+  KeyI: InputAction.ToggleInvincible,
 };
 
 /** Minimum finger travel, in pixels, for a touch to count as a swipe. */

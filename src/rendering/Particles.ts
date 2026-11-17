@@ -2,9 +2,10 @@
  * Neural Node & Code - Particle bursts
  *
  * Glowing pixel cubes that burst outward, fall, bounce, and shrink away.
- * Used when a monitor is caught (it shatters into pixels), when the scientist
- * is caught (a white burst, or a cartoon blood explosion with GORE on), and
- * for power orb pickups. Also owns the floor splat left by the explosion.
+ * Used when a monitor is caught (it shatters into pixels), when a monitor
+ * touches an invincible scientist (it explodes), when the scientist is caught
+ * (a white burst, or a cartoon blood explosion with GORE on), and for power
+ * orb pickups. Also owns the floor splat left by the blood explosion.
  *
  * Performance: every particle is a thin instance of ONE cube mesh, so the
  * whole system is a single draw call. Particles live in a fixed-size pool and
@@ -25,7 +26,7 @@ import { SeededRandom, clamp01, easeInCubic, easeOutCubic } from '../utils/MathU
 import { color3 } from './SceneSetup';
 import type { HexColor } from './Themes';
 
-const MAX_PARTICLES = 800;
+const MAX_PARTICLES = 1200;
 const GRAVITY = 22;
 const FLOOR_Y = 0;
 const BOUNCE = 0.35;
@@ -196,6 +197,60 @@ export class ParticleSystem {
   /** A caught monitor shattering into its screen color. */
   monitorShatter(x: number, z: number, color: HexColor): void {
     this.burst({ x, y: 0.55, z, color, count: 70, speed: 6, lift: 7, life: 1.1, size: 0.11 });
+  }
+
+  /** INVINCIBLE on: a monitor that touched the scientist blows up in a fiery blast. */
+  monitorExplosion(x: number, z: number, color: HexColor): void {
+    // Fireball core.
+    this.burst({
+      x,
+      y: 0.55,
+      z,
+      color: '#ff7a1a',
+      count: 70,
+      speed: 8,
+      lift: 8,
+      life: 1.0,
+      size: 0.13,
+    });
+    // Hot yellow sparks.
+    this.burst({
+      x,
+      y: 0.6,
+      z,
+      color: '#ffe14a',
+      count: 40,
+      speed: 10,
+      lift: 9,
+      life: 0.7,
+      size: 0.06,
+    });
+    // Dark smoke bits.
+    this.burst({
+      x,
+      y: 0.5,
+      z,
+      color: '#f40404',
+      count: 25,
+      speed: 4,
+      lift: 6,
+      life: 1.4,
+      size: 0.12,
+    });
+    // Pixels in the monitor's own screen color.
+    this.burst({ x, y: 0.55, z, color, count: 45, speed: 7, lift: 7, life: 1.2, size: 0.1 });
+    // Beige casing fragments.
+    this.burst({
+      x,
+      y: 0.55,
+      z,
+      color: '#c9c3b4',
+      count: 15,
+      speed: 6,
+      lift: 10,
+      life: 1.6,
+      size: 0.12,
+    });
   }
 
   /** The scientist being caught: a wide, slow white burst. */

@@ -1,7 +1,8 @@
 # Neural Node & Code
 
 # FOR A VIDEO DEMO OF THIS PROJECT PLEASE VISIT: https://www.youtube.com/watch?v=R3JmjBxTS5g
-
+# VIDEO TEST PART 1 https://www.youtube.com/watch?v=IgCJgSpcM3c
+# VIDEO TEST PART 2 https://www.youtube.com/watch?v=8TpX3HvQLM4
 A 3D maze chase game built with TypeScript and Babylon.js. Guide the scientist through eight glowing neural mazes, collect every data node, and outrun four rogue computer monitors that each hunt you in their own way.
 
 ---
@@ -210,3 +211,6 @@ This project uses a strict Content Security Policy, locally bundled fonts, no ex
 Copyright 2026. All rights reserved.
 
 This project is not licensed for redistribution. Bundled fonts are used under the SIL Open Font License.
+# FOR A VIDEO DEMO OF THIS PROJECT PLEASE VISIT: https://www.youtube.com/watch?v=R3JmjBxTS5g
+# VIDEO TEST PART 1 https://www.youtube.com/watch?v=IgCJgSpcM3c
+# VIDEO TEST PART 2 https://www.youtube.com/watch?v=8TpX3HvQLM4
